@@ -1,0 +1,69 @@
+	<div class="alert-container" ng-show="showAlert">
+		<div class="page-cover"></div>
+		<div class="alert" ng-click="hideAlert()">{{alertText}}</div>
+	</div>
+	
+    <div class="container" ng-hide="startFormSubmitted">
+      <form name="startForm" class="form-start" role="form" ng-submit="onStartFormSubmit()">
+        <h2 class="form-start-heading">Roadeo Race - Boxcar</h2>		
+		<div>
+			<label for="startFormNbrOfPlayers" class="control-label input-group">Number of players:&nbsp;&nbsp;</label>
+			<input type="radio" ng-model="startFormNbrOfPlayers" value="1">&nbsp;1&nbsp;&nbsp;
+			<input type="radio" ng-model="startFormNbrOfPlayers" value="2" checked="">&nbsp;2&nbsp;&nbsp;
+			<input type="radio" ng-model="startFormNbrOfPlayers" value="3">&nbsp;3&nbsp;&nbsp;
+			<input type="radio" ng-model="startFormNbrOfPlayers" value="4">&nbsp;4
+		</div>
+		<div>
+			<input type="text" ng-model="startFormPlayerNames[0]" class="form-control" placeholder="Player 1">
+			<input type="text" ng-model="startFormPlayerNames[1]" class="form-control" placeholder="Player 2" ng-hide="startFormNbrOfPlayers<2">
+			<input type="text" ng-model="startFormPlayerNames[2]" class="form-control" placeholder="Player 3" ng-hide="startFormNbrOfPlayers<3">
+			<input type="text" ng-model="startFormPlayerNames[3]" class="form-control" placeholder="Player 4" ng-hide="startFormNbrOfPlayers<4">
+		</div>
+        <input type="submit" class="btn btn-lg btn-primary btn-block" value="Let's play" />
+      </form>
+    </div>
+	
+	<div id="game-container" class="game-container" ng-show="startFormSubmitted">
+		<div id="game-board" class="game-board">
+			<div class="board-row" ng-repeat="row in board.rows">
+				<div class="board-tile-base" ng-repeat="tile in row.cols">
+					<div class="board-tile rot-{{tile.rotation}}{{board.addClassIfCorner(tile.row,tile.col)}}" style="background-image:url('img/tiles/{{tile.type}}.png')" ng-click="slideInTile(tile.row,tile.col)" ng-bind-html="board.addPlayersAndFlags(tile.row,tile.col,tile.rotation)"></div>
+				</div>
+			</div>
+		</div>
+		<div id="game-data" class="game-data">
+			<div id="players" class="players">
+				<table>
+					<tbody>
+						<tr ng-repeat="player in players">
+							<td>{{(playerInTurn==player.id) | inTurn}}</td>
+							<td class="player-name player-name-{{player.color}}">{{player.name}}</td>
+							<td><div class="table-energy background-color-{{player.color}}">{{player.nbrOfEnergyBoxes}}</div></td>
+							<td><div class="table-flag{{player.status | flagClass:player.color}}"></div></td>
+							<td>{{player.status | status}}</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td colspan="3" style="padding-top: 6px;">Turns played:</td>
+							<td style="padding-top: 6px;">{{turnsPlayed}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div id="free-tile" class="free-tile">
+				<div class="rotate-ccw{{addClassIfInactive(0)}}" ng-click="rotateFreeTile('ccw')"></div>
+				<div class="board-tile rot-{{board.freeTile.rotation}}" style="background-image:url('img/tiles/{{board.freeTile.type}}.png')" ng-click="rotateFreeTile('cw')"></div>
+				<div class="rotate-cw{{addClassIfInactive(0)}}" ng-click="rotateFreeTile('cw')"></div>
+			</div>
+			<div id="information" class="information information-{{players[playerInTurn].color}}">
+				{{players[playerInTurn].name}}{{informationTextAfterName[turnAction]}}
+			</div>
+			<div id="energy" class="energy">
+				<div class="energy-box{{addClassIfInactive(1)}}" ng-click="drive(1)">1</div>
+				<div class="energy-box{{addClassIfInactive(1)}} background-color-{{players[playerInTurn].color}}" ng-repeat="energyBox in energyBoxesOfPlayerInTurn()" ng-click="drive(energyBox+1)">{{energyBox+1}}</div>
+			</div>
+			<div id="buttons" class="buttons">
+				<button class="btn" go-click="/start">Restart game</button>
+			</div>
+		</div>
+	</div>
